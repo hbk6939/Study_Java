@@ -8,21 +8,24 @@
 import java.util.*;
 
 class Car implements Cloneable {
-	private String modelName;
-	private ArrayList<String> owners = new ArrayList<String>();
+	private String modelName; // 모델명
+	private ArrayList<String> owners = new ArrayList<String>(); // 오너 리스트
 
-	public String getModelName() { return this.modelName; }
-	public void setModelName(String modelName) { this.modelName = modelName; }
+	public String getModelName() { return this.modelName; } // 모델명 getter
+	public void setModelName(String modelName) { this.modelName = modelName; } // 모델명 setter
 
-	public ArrayList getOwners() { return this.owners; }
-	public void setOwners(String ownerName) { this.owners.add(ownerName); }
+	public ArrayList getOwners() { return this.owners; } // 오너 리스트 getter
+	public void setOwners(String ownerName) { this.owners.add(ownerName); } // 오너 리스트 setter
 	
-	public Object clone() {
+	public Object clone() { // implements Cloneable을 통한 Object의 clone() 메소드 오버리이딩
 		try {
-			Car clonedCar = (Car)super.clone();
-			// clonedCar.owners = (ArrayList)owners.clone();
+            // ②번 라인에서는 부모 클래스의 clone() 메소드를 호출하여 clone() 메소드를 오버라이딩
+            // 하지만 ②번 라인처럼 clone() 메소드를 재정의하면, 필드의 값이 ①번 라인처럼 인스턴스일 때는 제대로 된 복제를 수행할 수 없습니다.
+			Car clonedCar = (Car)super.clone(); // ②
+            // 따라서 정확한 복제를 위해서는 ③번 라인처럼 배열이나 인스턴스인 필드에 대해서는 별도로 clone() 메소드를 구현하여 호출
+			clonedCar.owners = (ArrayList)owners.clone(); // ③            
 			return clonedCar;
-		} catch (CloneNotSupportedException ex) {
+		} catch (CloneNotSupportedException ex) { // ④
 			ex.printStackTrace();
 			return null;
 		}
@@ -31,15 +34,22 @@ class Car implements Cloneable {
 
 public class c_Object_clone {
 	public static void main(String[] args) {
-		Car car01 = new Car();
+        // ⑤번 라인에서는 Car 클래스의 인스턴스인 car01을 생성
+		Car car01 = new Car(); // ⑤
 
 		car01.setModelName("아반떼");
 		car01.setOwners("홍길동");
-		System.out.println("Car01 : " + car01.getModelName() + ", " + car01.getOwners() + "\n");
+		System.out.println("Car01 : " + car01.getModelName() + ", " + car01.getOwners() + "\n"); // ⑥
 		
-		Car car02 = (Car)car01.clone();
-		car02.setOwners("이순신");
-		System.out.println("Car01 : " + car01.getModelName() + ", " + car01.getOwners());
-		System.out.println("Car02 : " + car02.getModelName() + ", " + car02.getOwners());
+        // ⑦번 라인에서는 오버라이딩한 clone() 메소드를 호출하여 복제를 수행
+		Car car02 = (Car)car01.clone(); // ⑦
+        // ⑧번 라인에서는 복제된 인스턴스인 car02의 owners 필드에 새로운 값을 하나 추가
+		car02.setOwners("이순신"); // ⑧
+        // ⑨번 라인의 실행 결과를 보면, ⑦번 라인의 결과와는 달리 원본 인스턴스인 car01의 owners 필드에도 새로운 값이 추가되었음을 확인
+		System.out.println("Car01 : " + car01.getModelName() + ", " + car01.getOwners()); // ⑨
+		System.out.println("Car02 : " + car02.getModelName() + ", " + car02.getOwners()); // ⑩
 	}
 }
+
+            // 이처럼 단순히 부모 클래스의 clone() 메소드를 호출하여 clone() 메소드를 재정의하면,
+            // 배열이나 인스턴스인 필드는 복제되는 것이 아닌 해당 배열이나 인스턴스를 가리키는 주소값만이 복제되는 것입니다.
